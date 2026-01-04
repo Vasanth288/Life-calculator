@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>How Old Am I? | Life Calculator – Age, Days, Life Progress</title>
+<meta name="description" content="Free one-page life calculator. Know your age, age in days, hours, next birthday, life progress, retirement countdown and zodiac sign instantly.">
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        color: #fff;
+        min-height: 100vh;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: auto;
+        padding: 20px;
+    }
+
+    h1, h2 {
+        text-align: center;
+    }
+
+    .card {
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 15px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    input, button {
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        border: none;
+        margin-top: 10px;
+        font-size: 16px;
+    }
+
+    input {
+        background: #fff;
+        color: #000;
+    }
+
+    button {
+        background: #00c6ff;
+        color: #000;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    button:hover {
+        background: #00f2fe;
+    }
+
+    .result {
+        margin-top: 15px;
+        font-size: 18px;
+        line-height: 1.6;
+    }
+
+    .progress {
+        background: rgba(255,255,255,0.2);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+
+    .progress-bar {
+        height: 18px;
+        background: #00ff99;
+        width: 0%;
+    }
+
+    footer {
+        text-align: center;
+        opacity: 0.6;
+        margin-top: 40px;
+        font-size: 14px;
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🧮 Life Calculator</h1>
+<p style="text-align:center;">Know everything about yourself in seconds</p>
+
+<div class="card">
+    <h2>🎂 Age Calculator</h2>
+    <input type="date" id="dob">
+    <button onclick="calculate()">Calculate</button>
+    <div class="result" id="output"></div>
+</div>
+
+<div class="card">
+    <h2>📊 Life Progress</h2>
+    <div id="lifeProgressText"></div>
+    <div class="progress">
+        <div class="progress-bar" id="lifeBar"></div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>⏳ Retirement Countdown</h2>
+    <div id="retirement"></div>
+</div>
+
+<div class="card">
+    <h2>🔮 Zodiac Sign</h2>
+    <div id="zodiac"></div>
+</div>
+
+<div class="card">
+    <button onclick="share()">📤 Copy & Share Result</button>
+</div>
+
+<footer>
+    © 2026 Life Calculator | Built for learning & experiments
+</footer>
+
+</div>
+
+<script>
+function calculate() {
+    const dob = new Date(document.getElementById("dob").value);
+    if (!dob.getTime()) return;
+
+    const now = new Date();
+    const diff = now - dob;
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor(diff / (1000 * 60));
+
+    let age = now.getFullYear() - dob.getFullYear();
+    if (
+        now.getMonth() < dob.getMonth() ||
+        (now.getMonth() === dob.getMonth() && now.getDate() < dob.getDate())
+    ) age--;
+
+    let nextBirthday = new Date(now.getFullYear(), dob.getMonth(), dob.getDate());
+    if (nextBirthday < now) nextBirthday.setFullYear(now.getFullYear() + 1);
+    const bdiff = Math.ceil((nextBirthday - now) / (1000 * 60 * 60 * 24));
+
+    document.getElementById("output").innerHTML = `
+        🎉 You are <b>${age}</b> years old<br>
+        📅 Lived <b>${days}</b> days<br>
+        ⏱ <b>${hours}</b> hours | <b>${minutes}</b> minutes<br>
+        🎁 Next birthday in <b>${bdiff}</b> days
+    `;
+
+    const lifeExpectancy = 80 * 365;
+    const lifePercent = Math.min((days / lifeExpectancy) * 100, 100).toFixed(2);
+
+    document.getElementById("lifeProgressText").innerHTML =
+        `You have lived <b>${lifePercent}%</b> of an 80-year life`;
+
+    document.getElementById("lifeBar").style.width = lifePercent + "%";
+
+    const retireAge = 60;
+    const yearsLeft = retireAge - age;
+    document.getElementById("retirement").innerHTML =
+        yearsLeft > 0
+        ? `🧓 Retirement in <b>${yearsLeft}</b> years`
+        : `🎉 Retirement age crossed`;
+
+    document.getElementById("zodiac").innerHTML = getZodiac(dob.getDate(), dob.getMonth() + 1);
+}
+
+function getZodiac(d, m) {
+    const z = [
+        ["Capricorn","Aquarius"],["Aquarius","Pisces"],["Pisces","Aries"],
+        ["Aries","Taurus"],["Taurus","Gemini"],["Gemini","Cancer"],
+        ["Cancer","Leo"],["Leo","Virgo"],["Virgo","Libra"],
+        ["Libra","Scorpio"],["Scorpio","Sagittarius"],["Sagittarius","Capricorn"]
+    ];
+    const lastDay = [19,18,20,20,21,21,22,22,21,22,21,21];
+    return "♈ Your Zodiac Sign: <b>" + (d > lastDay[m-1] ? z[m-1][1] : z[m-1][0]) + "</b>";
+}
+
+function share() {
+    const text = document.getElementById("output").innerText;
+    navigator.clipboard.writeText(text + "\nCheck your life stats online!");
+    alert("Result copied! Share anywhere 🚀");
+}
+</script>
+
+</body>
+</html>
